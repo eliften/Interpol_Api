@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Veri Gösterme</title>
+</head>
+<body>
+	<h1>Kişisel Bilgiler</h1>
+	<p>İsim: {{ data['name'] }}</p>
+	<p>Soyisim: {{ data['forename'] }}</p>
+	<p>Doğum Tarihi: {{ data['date_of_birth'] }}</p>
+	<p>Doğum Yeri: {{ data['place_of_birth'] }}</p>
+	<p>Kimlik Numarası: {{ data['entity_id'] }}</p>
+	<p>Uyrukluk: {{ data['nationalities'] }}</p>
+	<p>Boy: {{ data['height'] }}</p>
+	<p>Cinsiyet: {{ data['sex_id'] }}</p>
+	<p>Göz Rengi: {{ data['eyes_colors_id'] }}</p>
+	<p>Saç Rengi: {{ data['hairs_id'] }}</p>
+	<p>Ayırt Edici İşaretler: {{ data['distinguishing_marks'] }}</p>
+	<p>Veriliş Ülkesi: {{ data['issuing_country_id'] }}</p>
+	<p>Suç: {{ data['charge'] }}</p>
+	<p>Suçun Çevirisi: {{ data['charge_translation'] }}</p>
+	<img src="{{ data['image'] }}" alt="Resim">
+</body>
+</html>
