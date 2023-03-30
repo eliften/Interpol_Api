@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Veri Gösterme</title>
+	<title>Red Notices</title>
 </head>
 <body>
-	<h1>Kişisel Bilgiler</h1>
-	<p>İsim: {{ data['name'] }}</p>
-	<p>Soyisim: {{ data['forename'] }}</p>
-	<p>Doğum Tarihi: {{ data['date_of_birth'] }}</p>
-	<p>Doğum Yeri: {{ data['place_of_birth'] }}</p>
-	<p>Kimlik Numarası: {{ data['entity_id'] }}</p>
-	<p>Uyrukluk: {{ data['nationalities'] }}</p>
-	<p>Boy: {{ data['height'] }}</p>
-	<p>Cinsiyet: {{ data['sex_id'] }}</p>
-	<p>Göz Rengi: {{ data['eyes_colors_id'] }}</p>
-	<p>Saç Rengi: {{ data['hairs_id'] }}</p>
-	<p>Ayırt Edici İşaretler: {{ data['distinguishing_marks'] }}</p>
-	<p>Veriliş Ülkesi: {{ data['issuing_country_id'] }}</p>
-	<p>Suç: {{ data['charge'] }}</p>
-	<p>Suçun Çevirisi: {{ data['charge_translation'] }}</p>
+	<h1>Personal Information</h1>
+	<p>Name: {{ data['name'] }}</p>
+	<p>Forename: {{ data['forename'] }}</p>
+	<p>Date of Birth: {{ data['date_of_birth'] }}</p>
+	<p>Place of Birth: {{ data['place_of_birth'] }}</p>
+	<p>Entity Id: {{ data['entity_id'] }}</p>
+	<p>Nationalities: {{ data['nationalities'] }}</p>
+	<p>Height: {{ data['height'] }}</p>
+	<p>Sex Id: {{ data['sex_id'] }}</p>
+	<p>Eyes Colors Id: {{ data['eyes_colors_id'] }}</p>
+	<p>Hairs Id: {{ data['hairs_id'] }}</p>
+	<p>Distinguishing Marks: {{ data['distinguishing_marks'] }}</p>
+	<p>Issuing Country Id: {{ data['issuing_country_id'] }}</p>
+	<p>Charge: {{ data['charge'] }}</p>
+	<p>Charge Translation: {{ data['charge_translation'] }}</p>
 	<img src="{{ data['image'] }}" alt="Resim">
 </body>
 </html>
