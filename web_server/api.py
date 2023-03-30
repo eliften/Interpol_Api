@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 @app.route('/', methods=['POST'])
-def allRecords():
+def allRecords(): # publish all database
     conn = sqlite3.connect('interpol.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM red_list')
@@ -19,22 +19,24 @@ def allRecords():
 
 
 @app.route('/deleted_alert', methods=['POST'])
-def delete_alert():
+def delete_alert(): # publish detected deleted data
     raw_data = request.json
     data = raw_data['deleted_data']
-    return render_template('index.html', data=data)
+    data['Update_Type'] = 'deleted_data'
+    return render_template('update_index.html', data=data)
 
 
 @app.route('/added_alert', methods=['POST'])
-def added_alert():
+def added_alert(): # publish added deleted data
     raw_data = request.json
     data = raw_data['added_data']
-    return render_template('index.html', data=data)
+    data['Update_Type'] = 'added_data'
+    return render_template('update_index.html', data=data)
 
 if __name__ == "__main__":
     db_status = os.getenv('IS_DB_CREATED')
     compare_data.listenQueueAndComparing.listenQueue()
-    if db_status == "false":
+    if db_status == "false": #run without compare if the project is running for the first time
         compare_data.listenQueueAndComparing.creatDB()
         set_key('IS_DB_CREATED', "true")
     compare_data.listenQueueAndComparing.creat_delta_db()

@@ -12,16 +12,17 @@ class listenQueueAndComparing:
     def __init__(self):
         self.channel = amqp_connection.RabbitMQ.run_listen()
         self.queue = Queue
+        self.listenQueue()
 
-    def listenQueue(self):
+    def listenQueue(self): # consume data
         queue_name = os.getenv('RABBITMQ_QUEUE_NAME')
         self.channel.basic_consume(queue_name, on_message_callback=self.callback, auto_ack=True)
         self.channel.start_consuming()
 
-    def callback(self, ch, method, properties, body):
+    def callback(self, ch, method, properties, body): # consume data
         self.queue.put(json.loads(body))
 
-    def creatDB(self):
+    def creatDB(self): # Create red_list db
         body = self.queue.get()
         conn = sqlite3.connect('interpol.db')
         cursor = conn.cursor()
@@ -45,7 +46,7 @@ class listenQueueAndComparing:
         cursor.execute('INSERT INTO red_list (forename, name, date_of_birth, place_of_birth, entity_id, nationalities, height, sex_id, eyes_colors_id, hairs_id, distinguishing_marks, issuing_country_id, charge, charge_translation, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (body[0], body[1], body[2], body[3], body[4], body[5], body[6], body[7], body[8], body[10], body[11], body[12], body[13], body[14], datetime.now()))
         conn.commit()
 
-    def creat_delta_db(self):
+    def creat_delta_db(self): #create delta db for compare
         body = self.queue.get()
         conn = sqlite3.connect('interpol.db')
         cursor = conn.cursor()
@@ -77,18 +78,22 @@ class listenQueueAndComparing:
 
         cursor.execute("SELECT * FROM delta")
 
+
+        # detected data that is in red_list db but not in delta db so we got deleted data
         deleted_result = cursor.execute(
             "SELECT red_list.* FROM red_list LEFT JOIN delta ON red_list.entity_id = delta.entity_id WHERE delta.entity_id IS NULL")
-
+        # detected data that is in delta db but not in red_list db so we got added data
         added_result = cursor.execute(
             "SELECT delta.* FROM delta LEFT JOIN red_list ON delta.entity_id = red_list.entity_id WHERE red_list.entity_id IS NULL")
 
         added_data = [dict(zip(row.keys(), row)) for row in added_result]
         deleted_data = [dict(zip(row.keys(), row)) for row in deleted_result]
 
+        # Redirect to api for notification of deleted and added data
         requests.post('http://127.0.0.1:5000/deleted_alert', json={'deleted_data': deleted_data})
         requests.post('http://127.0.0.1:5000/added_alert', json={'added_data': added_data})
 
+        # updating the red_list db with its current content
         cursor.execute('SELECT * FROM delta')
         data = cursor.fetchall()
         cursor.executemany('INSERT INTO red_list VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', data)

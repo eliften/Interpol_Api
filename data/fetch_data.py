@@ -8,51 +8,13 @@ import logging
 
 from dotenv import load_dotenv
 
-from amqp_conns import amqp_connection
-import pika
 from apscheduler.schedulers.background import BackgroundScheduler
 
+import amqp_conns.amqp_connection
 
 load_dotenv()
 
-class RabbitMQ:
-    def __init__(self):
-        self.host = os.getenv('RABBITMQ_HOST')
-        self.port = os.getenv('RABBITMQ_PORT')
-        self.username = os.getenv('RABBITMQ_USERNAME')
-        self.password = os.getenv('RABBITMQ_PASSWORD')
-        self.virtual_host = os.getenv('RABBITMQ_VIRTUAL_HOST')
-        self.queue_name = os.getenv('RABBITMQ_QUEUE_NAME')
-
-    def connection(self):
-        self.credentials = pika.PlainCredentials(self.username, self.password)
-        self.parameters = pika.ConnectionParameters(self.host,
-                                                    self.port,
-                                                    self.virtual_host,
-                                                    self.credentials, heartbeat=50)
-
-        self.connect = None
-        self.channel = None
-
-        if not self.connect or self.connect.is_closed:
-            self.connect = pika.BlockingConnection(self.parameters)
-            self.create_channel()
-
-    def create_channel(self):
-        self.channel = self.connect.channel()
-        self.channel.queue_declare(queue=self.queue_name)
-
-    def send_message(self, message):
-        try:
-            self.connection()
-            self.channel.basic_publish(exchange='',
-                                       routing_key=self.queue_name,
-                                       body=message)
-        except pika.exceptions.AMQPError as p:
-            self.connect.close()
-            self.channel = None
-
-def fetch():
+def fetch(): #collect data from interpol api
     api_url = os.getenv("API_URL")
     start_page = 1
     try:
@@ -75,9 +37,8 @@ def fetch():
         logging.error(f'{e}')
 
 
-def parse_data():
+def parse_data(): #parsing data and parsing data
     obj = dict()
-    main_obj = dict()
     records_data = fetch()
     for i in records_data:
         notices = (records_data[i]['_embedded']['notices'])
@@ -103,11 +64,10 @@ def parse_data():
             image_url = i['_links']['images']['href']
             image_response = requests.get(image_url)
             obj['image'] = io.BytesIO(image_response.content)
-            main_obj[obj['entity_id']] = obj
-    return main_obj
+            client.send_message(obj)
 
-if __name__ == "__main__":
-    client = RabbitMQ()
+if __name__ == "__main__": # Running a project every 10 minutes and putting data into the queue
+    client = amqp_conns.amqp_connection.RabbitMQ()
     scheduler = BackgroundScheduler()
     scheduler.start()
 
@@ -121,8 +81,7 @@ if __name__ == "__main__":
             if tra != "true":
                 logging.error("this connection not enable for tracking")
                 break
-            records = job.run()
-            client.send_message(records)
+            job.run()
             continue
     except KeyboardInterrupt:
         scheduler.shutdown()
