@@ -2,7 +2,7 @@ version: "3.9"
 services:
   rabbitmq:
     platform: linux/amd64
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:latest
     restart: always
     container_name: 'rabbitmq'
     ports:
@@ -55,10 +55,10 @@ services:
     container_name: 'sqlite-db'
     restart: always
     environment:
-      - SQLITE_DATABASE=${SQLITE_USER}
-      - SQLITE_DATABASE=${SQLITE_PASSWORD}
-      - SQLITE_DATABASE=${SQLITE_DB}
-      - SQLITE_DATABASE=${SQLITE_PORT}
+      - SQLITE_USER=${SQLITE_USER}
+      - SQLITE_PASSWORD=${SQLITE_PASSWORD}
+      - SQLITE_DB=${SQLITE_DB}
+      - SQLITE_PORT=${SQLITE_PORT}
     networks:
       - frn_network
 
