@@ -1,7 +1,7 @@
 import os
 import requests
 
-import amqp_connection
+from amqp_conns import amqp_connection
 import sqlite3
 from queue import Queue
 import json

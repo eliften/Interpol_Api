@@ -8,7 +8,7 @@ import logging
 
 from dotenv import load_dotenv
 
-import amqp_connection
+from amqp_conns import amqp_connection
 
 load_dotenv()
 
@@ -63,5 +63,3 @@ def parse_data():
             image_response = requests.get(image_url)
             obj['image'] = io.BytesIO(image_response.content)
             amqp_connection.RabbitMQ().send_message(obj)
-
-parse_data()

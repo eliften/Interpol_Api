@@ -4,9 +4,9 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv, set_key
 
-import amqp_connection
-import compare_data
-import fetch_data
+from amqp_conns import amqp_connection
+from web_server import compare_data
+from data import fetch_data
 
 load_dotenv()
 
