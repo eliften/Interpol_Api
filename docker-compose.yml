@@ -1,0 +1,67 @@
+version: "3.9"
+services:
+  rabbitmq:
+    platform: linux/amd64
+    image: rabbitmq:3-management-alpine
+    restart: always
+    container_name: 'rabbitmq'
+    ports:
+        - 8000:5000
+        - 5672:5672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+        - frn_network
+    env_file:
+      - .env
+  data:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: data/fetch_data.dockerfile
+    volumes:
+      - ./data:/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    container_name: 'fetch_service'
+    networks:
+      - frn_network
+    env_file:
+      - .env
+  web-services:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./web_service/web.dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    container_name: 'web-server'
+    volumes:
+      - ./web_server:/web_server
+
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    networks:
+      - frn_network
+  db:
+    image: sqlite:latest
+    container_name: 'sqlite-db'
+    restart: always
+    environment:
+      - SQLITE_DATABASE=${SQLITE_USER}
+      - SQLITE_DATABASE=${SQLITE_PASSWORD}
+      - SQLITE_DATABASE=${SQLITE_DB}
+      - SQLITE_DATABASE=${SQLITE_PORT}
+    networks:
+      - frn_network
+
+networks:
+  frn_network:
+    driver: bridge
